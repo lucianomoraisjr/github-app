@@ -1,22 +1,37 @@
 import React, { createContext, ReactNode, useCallback, useState } from "react";
-import { IUser } from "../interfaces/User";
 import api from "../services/api";
 
+interface IUser {
+  id: string,
+  avatar: string,
+  login: string,
+  name: string,
+  html_url: string,
+  blog: string,
+  company: string,
+  location: string,
+  followers: number,
+  following: number,
+  public_gists: number,
+  public_repos: number,
+}
 
 interface IGithubState {
-    loading?: boolean
-    user?: IUser
-    repositories?: []
-    starred?: []
-    hasUser?: boolean
+  loading?: boolean
+  user?: IUser
+  repositories?: []
+  starred?: []
+  hasUser?: boolean
 }
 interface IGithubProvider {
-    children: ReactNode
+  children: ReactNode
 }
 
 interface AuthContexData {
-    githubState?:IGithubState,
-    getUser:(username:string)=>void    
+  githubState?: IGithubState,
+  getUser: (username: string) => void
+  getUserRepos: (username: string) => void
+  getUserStarred: (username: string) => void
 
 }
 
@@ -25,54 +40,72 @@ interface AuthContexData {
 export const GithubContext = createContext({} as AuthContexData);
 
 const GithubProvider = ({ children }: IGithubProvider) => {
-    const [githubState, setGithubState] = useState<IGithubState>()
+  const [githubState, setGithubState] = useState<IGithubState>()
 
 
-    const getUser = (username:string) => {
+  const getUser = (username: string) => {
 
-      console.log('oioi')
+    setGithubState((prevState) => ({
+      ...prevState,
+      loading: !(prevState?.loading),
+    }));
+
+    api
+      .get(`users/${username}`)
+      .then(({ data }) => {
         setGithubState((prevState) => ({
-            ...prevState,
-            loading: !(prevState?.loading),
+          ...prevState,
+          hasUser: true,
+          user: {
+            id: data.id,
+            avatar: data.avatar_url,
+            login: data.login,
+            name: data.name,
+            html_url: data.html_url,
+            blog: data.blog,
+            company: data.company,
+            location: data.location,
+            followers: data.followers,
+            following: data.following,
+            public_gists: data.public_gists,
+            public_repos: data.public_repos,
+          },
         }));
+      })
+      .finally(() => {
+        setGithubState((prevState) => ({
+          ...prevState,
+          loading: !(prevState?.loading),
+        }));
+      });
 
-        api
-        .get(`users/${username}`)
-        .then(({ data }) => {
-          setGithubState((prevState) => ({
-            ...prevState,
-            hasUser: true,
-            user: {
-              id: data.id,
-              avatar: data.avatar_url,
-              login: data.login,
-              name: data.name,
-              html_url: data.html_url,
-              blog: data.blog,
-              company: data.company,
-              location: data.location,
-              followers: data.followers,
-              following: data.following,
-              public_gists: data.public_gists,
-              public_repos: data.public_repos,
-            },
-          }));
-        })
-        .finally(() => {
-          setGithubState((prevState) => ({
-            ...prevState,
-            loading: !(prevState?.loading),
-          }));
-        });
-
-}
-const contextValue = {
-    githubState,
-    getUser
-    
-    
+  }
+  const getUserRepos = (username: string) => {
+    api.get(`users/${username}/repos`).then(({ data }) => {
+      console.log("data: " + JSON.stringify(data));
+      setGithubState((prevState) => ({
+        ...prevState,
+        repositories: data,
+      }));
+    });
   };
-return (
+
+  const getUserStarred = (username: string) => {
+    api.get(`users/${username}/starred`).then(({ data }) => {
+      console.log("data: " + JSON.stringify(data));
+      setGithubState((prevState) => ({
+        ...prevState,
+        starred: data,
+      }));
+    });
+  };
+  const contextValue = {
+    githubState,
+    getUser,
+    getUserRepos,
+    getUserStarred
+  };
+  return (
     <GithubContext.Provider value={contextValue}>
       {children}
     </GithubContext.Provider>
