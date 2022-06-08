@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useCallback, useState } from "react";
 import api from "../services/api";
 
 interface IUser {
@@ -16,11 +16,23 @@ interface IUser {
   public_repos: number,
 }
 
+interface IRepositories {
+  id:string
+  name:string
+  full_name:string
+
+}
+interface IStarred {
+  id:string
+  name:string
+  full_name:string
+
+}
 interface IGithubState {
   loading?: boolean
   user?: IUser
-  repositories?: []
-  starred?: []
+  repositories?:IRepositories[]
+  starred?: IStarred[]
   hasUser?: boolean
 }
 interface IGithubProvider {
