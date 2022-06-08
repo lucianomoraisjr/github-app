@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import * as S from "./styled";
 
 interface IRepositoryItem {
@@ -8,7 +8,9 @@ interface IRepositoryItem {
 }
 
 const RepositoryItem = ({ name, linkToRepo, fullName }:IRepositoryItem) => {
-  return (
+
+  
+    return (
     <S.Wrapper>
       <S.WrapperTitle>{name}</S.WrapperTitle>
       <S.WrapperFullName>full name:</S.WrapperFullName>

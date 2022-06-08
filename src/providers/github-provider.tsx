@@ -94,7 +94,7 @@ const GithubProvider = ({ children }: IGithubProvider) => {
   }
   const getUserRepos = (username: string) => {
     api.get(`users/${username}/repos`).then(({ data }) => {
-      console.log("data: " + JSON.stringify(data));
+      
       setGithubState((prevState) => ({
         ...prevState,
         repositories: data,
@@ -104,7 +104,7 @@ const GithubProvider = ({ children }: IGithubProvider) => {
 
   const getUserStarred = (username: string) => {
     api.get(`users/${username}/starred`).then(({ data }) => {
-      console.log("data: " + JSON.stringify(data));
+      
       setGithubState((prevState) => ({
         ...prevState,
         starred: data,
